@@ -1,5 +1,6 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { SpaceBackground } from "@/components/SpaceBackground";
 import { AppShell } from "@/layouts/AppShell";
 import { homePathFor, useAuth } from "@/lib/auth";
 import { LoginPage } from "@/pages/LoginPage";
@@ -21,9 +22,15 @@ function RootRedirect() {
   return <Navigate to={user ? homePathFor(user.role) : "/login"} replace />;
 }
 
+function RouteAwareBackground() {
+  const { pathname } = useLocation();
+  return <SpaceBackground interactive={pathname === "/login"} />;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
+      <RouteAwareBackground />
       <Routes>
         <Route path="/" element={<RootRedirect />} />
         <Route path="/login" element={<LoginPage />} />

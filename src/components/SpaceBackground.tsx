@@ -81,8 +81,17 @@ function buildNebula(w: number, h: number): HTMLCanvasElement {
   return nebula;
 }
 
-export function SpaceBackground() {
+interface SpaceBackgroundProps {
+  interactive?: boolean;
+}
+
+export function SpaceBackground({ interactive = true }: SpaceBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const interactiveRef = useRef(interactive);
+
+  useEffect(() => {
+    interactiveRef.current = interactive;
+  }, [interactive]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -421,6 +430,11 @@ export function SpaceBackground() {
     const render = (dt: number) => {
       lastDt = dt;
       time += dt;
+      if (!interactiveRef.current) {
+        pointer.tx = 0;
+        pointer.ty = 0;
+        pointer.lastMove = -99;
+      }
       const ease = Math.min(1, dt * 3);
       pointer.x += (pointer.tx - pointer.x) * ease;
       pointer.y += (pointer.ty - pointer.y) * ease;
@@ -455,6 +469,7 @@ export function SpaceBackground() {
     };
 
     const onMove = (e: PointerEvent) => {
+      if (!interactiveRef.current) return;
       pointer.tx = (e.clientX / w - 0.5) * 2;
       pointer.ty = (e.clientY / h - 0.5) * 2;
       pointer.px = e.clientX;
@@ -463,6 +478,7 @@ export function SpaceBackground() {
     };
 
     const onDown = (e: PointerEvent) => {
+      if (!interactiveRef.current) return;
       warp = Math.min(1, warp + 0.55);
       ripples.push({ x: e.clientX, y: e.clientY, age: 0 });
     };
