@@ -33,12 +33,6 @@ interface Satellite {
   blink: number;
 }
 
-interface Ripple {
-  x: number;
-  y: number;
-  age: number;
-}
-
 /* ── Constants ────────────────────────────────────────── */
 
 const TAU = Math.PI * 2;
@@ -210,9 +204,6 @@ export function SpaceBackground() {
     let milkyWay: HTMLCanvasElement | null = null;
     const meteors: Meteor[] = [];
     const satellites: Satellite[] = [];
-    const ripples: Ripple[] = [];
-    const pointer = { x: 0, y: 0, tx: 0, ty: 0, px: -9999, py: -9999, lastMove: -99 };
-    let warp = 0;
     let time = 0;
     let nextMeteor = 1.5;
     let nextSat = 6;
@@ -238,7 +229,7 @@ export function SpaceBackground() {
       const driftX = Math.sin(time * 0.03) * 18;
       const driftY = Math.cos(time * 0.025) * 12;
       ctx.globalAlpha = 0.7 + Math.sin(time * 0.15) * 0.06;
-      ctx.drawImage(milkyWay, -pointer.x * 8 + driftX, -pointer.y * 5 + driftY, w, h);
+      ctx.drawImage(milkyWay, driftX, driftY, w, h);
       ctx.globalAlpha = 1;
     };
 
@@ -252,8 +243,8 @@ export function SpaceBackground() {
       ctx.globalAlpha = 0.75 + Math.sin(time * 0.2) * 0.08;
       ctx.drawImage(
         nebula,
-        (w - drawW) / 2 - pointer.x * 20 + driftX,
-        (h - drawH) / 2 - pointer.y * 12 + driftY,
+        (w - drawW) / 2 + driftX,
+        (h - drawH) / 2 + driftY,
         drawW,
         drawH,
       );
@@ -329,8 +320,8 @@ export function SpaceBackground() {
 
     const drawEarth = () => {
       const R = Math.min(Math.max(Math.min(w, h) * 0.22, 90), 260);
-      const cx = w * 0.82 - pointer.x * 8;
-      const cy = h * 0.82 - pointer.y * 5;
+      const cx = w * 0.82;
+      const cy = h * 0.82;
 
       ctx.save();
       ctx.translate(cx, cy);
@@ -405,56 +396,18 @@ export function SpaceBackground() {
     /* ── Stars ────────────────────────────────────────── */
 
     const drawStars = () => {
-      const cx = w / 2;
-      const cy = h / 2;
-      const interactive = time - pointer.lastMove < 4;
-      const near: Array<{ x: number; y: number; d: number }> = [];
-
       for (const s of stars) {
         s.x -= 2.2 * s.z * lastDt;
         s.y += 0.5 * s.z * lastDt;
         if (s.x < -20) s.x += w + 40;
         if (s.y > h + 20) s.y -= h + 40;
 
-        let px = s.x + pointer.x * s.z * 26;
-        let py = s.y + pointer.y * s.z * 16;
-
-        const dx = px - cx;
-        const dy = py - cy;
-        const dist = Math.hypot(dx, dy) || 1;
-        const ux = dx / dist;
-        const uy = dy / dist;
-        px += ux * warp * s.z * 40;
-        py += uy * warp * s.z * 40;
-
-        let boost = 0;
-        if (interactive) {
-          const mdx = px - pointer.px;
-          const mdy = py - pointer.py;
-          const md = Math.hypot(mdx, mdy) || 1;
-          if (md < 140) {
-            const f = 1 - md / 140;
-            px += (mdx / md) * f * 12 * s.z;
-            py += (mdy / md) * f * 12 * s.z;
-            boost = f * 0.5;
-            if (md < 120 && near.length < 12) near.push({ x: px, y: py, d: md });
-          }
-        }
+        const px = s.x;
+        const py = s.y;
 
         const twinkle = 0.5 + 0.5 * Math.sin(time * s.speed + s.phase);
-        const alpha = Math.min(1, (0.25 + 0.75 * twinkle) * (0.25 + 0.75 * s.z) + boost);
-        const streak = warp * (18 + 100 * s.z);
+        const alpha = (0.25 + 0.75 * twinkle) * (0.25 + 0.75 * s.z);
         const tint = STAR_COLORS[s.colorIndex]!;
-
-        if (streak > 2) {
-          ctx.beginPath();
-          ctx.moveTo(px, py);
-          ctx.lineTo(px - ux * streak, py - uy * streak);
-          ctx.strokeStyle = `rgba(${tint},${alpha})`;
-          ctx.lineWidth = s.r;
-          ctx.stroke();
-          continue;
-        }
 
         ctx.fillStyle = `rgba(${tint},${alpha})`;
         ctx.beginPath();
@@ -478,31 +431,6 @@ export function SpaceBackground() {
           ctx.moveTo(px, py - len);
           ctx.lineTo(px, py + len);
           ctx.stroke();
-        }
-      }
-
-      if (near.length > 0) {
-        ctx.lineWidth = 0.7;
-        for (let i = 0; i < near.length; i++) {
-          const a = near[i];
-          if (!a) continue;
-          ctx.strokeStyle = `rgba(11,61,145,${(1 - a.d / 120) * 0.45})`;
-          ctx.beginPath();
-          ctx.moveTo(pointer.px, pointer.py);
-          ctx.lineTo(a.x, a.y);
-          ctx.stroke();
-          for (let j = i + 1; j < near.length; j++) {
-            const b = near[j];
-            if (!b) continue;
-            const d = Math.hypot(a.x - b.x, a.y - b.y);
-            if (d < 80) {
-              ctx.strokeStyle = `rgba(74,144,255,${(1 - d / 80) * 0.3})`;
-              ctx.beginPath();
-              ctx.moveTo(a.x, a.y);
-              ctx.lineTo(b.x, b.y);
-              ctx.stroke();
-            }
-          }
         }
       }
     };
@@ -625,35 +553,11 @@ export function SpaceBackground() {
       }
     };
 
-    /* ── Ripples ──────────────────────────────────────── */
-
-    const drawRipples = () => {
-      for (let i = ripples.length - 1; i >= 0; i--) {
-        const r = ripples[i];
-        if (!r) continue;
-        r.age += lastDt;
-        if (r.age > 1.2) {
-          ripples.splice(i, 1);
-          continue;
-        }
-        const p = r.age / 1.2;
-        ctx.strokeStyle = `rgba(11,61,145,${(1 - p) * 0.4})`;
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.arc(r.x, r.y, p * 150, 0, TAU);
-        ctx.stroke();
-      }
-    };
-
     /* ── Render loop ──────────────────────────────────── */
 
     const render = (dt: number) => {
       lastDt = dt;
       time += dt;
-      const ease = Math.min(1, dt * 3);
-      pointer.x += (pointer.tx - pointer.x) * ease;
-      pointer.y += (pointer.ty - pointer.y) * ease;
-      warp = Math.max(0, warp - dt * 1.1);
 
       ctx.clearRect(0, 0, w, h);
       drawNebula();
@@ -663,7 +567,6 @@ export function SpaceBackground() {
       if (!reduced) {
         drawMeteors();
         drawSatellites();
-        drawRipples();
       }
     };
 
@@ -685,33 +588,16 @@ export function SpaceBackground() {
       raf = 0;
     };
 
-    const onMove = (e: PointerEvent) => {
-      pointer.tx = (e.clientX / w - 0.5) * 2;
-      pointer.ty = (e.clientY / h - 0.5) * 2;
-      pointer.px = e.clientX;
-      pointer.py = e.clientY;
-      pointer.lastMove = time;
-    };
-
-    const onDown = (e: PointerEvent) => {
-      warp = Math.min(1, warp + 0.5);
-      ripples.push({ x: e.clientX, y: e.clientY, age: 0 });
-    };
-
     const onVisibility = () => (document.hidden ? stop() : start());
 
     resize();
     start();
     window.addEventListener("resize", resize);
-    window.addEventListener("pointermove", onMove, { passive: true });
-    window.addEventListener("pointerdown", onDown, { passive: true });
     document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
       stop();
       window.removeEventListener("resize", resize);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerdown", onDown);
       document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
