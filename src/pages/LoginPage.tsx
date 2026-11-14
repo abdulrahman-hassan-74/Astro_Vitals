@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { AlertCircle, ArrowRight, ShieldAlert, Stethoscope, UserRound } from "lucide-react";
-import { LogoMark } from "@/components/Logo";
+import { BrandName, LogoMark } from "@/components/Logo";
 import { homePathFor, useAuth } from "@/lib/auth";
 import { demoAccounts } from "@/data/operations";
 
@@ -32,9 +32,11 @@ export function LoginPage() {
 
       <div className="relative w-full max-w-md">
         <div className="mb-8 flex flex-col items-center text-center">
-          <LogoMark size={72} />
-          <h1 className="mt-4 font-display text-5xl font-semibold tracking-tight text-ink">AstroVitals</h1>
-          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-nasa-red">NASA Health Command</p>
+          <LogoMark size={96} />
+          <h1 className="mt-5 text-5xl leading-none sm:text-6xl">
+            <BrandName />
+          </h1>
+          <p className="mt-3 font-mono text-[11px] font-medium uppercase tracking-[0.24em] text-nasa-red">NASA Health Command</p>
           <p className="mt-2 text-sm text-orbit-muted [text-shadow:0_1px_10px_#06080F]">Astronaut health monitoring and medical decision support</p>
         </div>
 
@@ -86,7 +88,7 @@ export function LoginPage() {
           </form>
 
           <div className="mt-6 border-t border-orbit-line pt-5">
-            <p className="orbit-eyebrow mb-3">Demo accounts — click to fill</p>
+            <p className="orbit-eyebrow mb-3">Demo accounts</p>
             <div className="grid gap-2.5">
               {demoAccounts.map((acc) => {
                 const Icon = acc.role === "astronaut" ? UserRound : Stethoscope;
@@ -117,7 +119,7 @@ export function LoginPage() {
 
         <p className="mt-5 flex items-start justify-center gap-2 rounded-md bg-[#06080F]/80 px-3 py-2 text-center text-xs text-orbit-muted backdrop-blur-sm">
           <ShieldAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-          Demo authentication for prototype purposes only. Not secure. All health data is simulated.
+          Demo authentication for prototype purposes only. All data is simulated.
         </p>
       </div>
     </div>

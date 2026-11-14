@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { AwardAnnouncer } from "@/components/AwardAnnouncer";
+import { BioBotAssistant } from "@/components/BioBotAssistant";
 import { MissionStrip } from "@/components/MissionStrip";
 import { useAuth } from "@/lib/auth";
 import { Sidebar } from "./Sidebar";
@@ -29,6 +30,7 @@ export function AppShell() {
         </main>
         <AwardAnnouncer />
       </div>
+      <BioBotAssistant />
     </div>
   );
 }

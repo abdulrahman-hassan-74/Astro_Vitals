@@ -27,8 +27,10 @@
   --color-nasa-gold: #ffb000;
   --color-nasa-silver: #d0d5dd;
 
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-brand-sky: #38bdf8;
+
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Sora", "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
@@ -47,9 +49,19 @@
   body {
     background-color: var(--color-orbit-bg);
     color: var(--color-ink);
-    font-feature-settings: "cv11", "ss01";
     font-family: var(--font-sans);
+    font-optical-sizing: auto;
+    text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
   }
 
   ::selection {
@@ -82,7 +94,7 @@
     @apply rounded-lg border border-white/10 bg-[#0b0f19]/90 backdrop-blur-md;
   }
   .orbit-title {
-    @apply font-semibold tracking-tight;
+    @apply font-display font-bold tracking-tight;
   }
   .orbit-glow {
     box-shadow: none;
